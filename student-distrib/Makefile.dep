@@ -1,0 +1,25 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+x86_desc.o: x86_desc.S x86_desc.h types.h
+file.o: file.c file.h types.h lib.h syscalls.h page.h x86_desc.h \
+  terminal.h rtc.h i8259.h
+i8259.o: i8259.c i8259.h types.h lib.h
+idt.o: idt.c idt.h types.h x86_desc.h interrupts.h syscalls.h file.h \
+  page.h lib.h terminal.h rtc.h i8259.h
+interrupts.o: interrupts.c interrupts.h types.h lib.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
+  tests.h rtc.h interrupts.h idt.h syscalls.h file.h page.h terminal.h \
+  keyboard.h task_switch.h
+keyboard.o: keyboard.c keyboard.h lib.h types.h i8259.h idt.h x86_desc.h \
+  interrupts.h syscalls.h file.h page.h terminal.h rtc.h
+lib.o: lib.c lib.h types.h keyboard.h i8259.h idt.h x86_desc.h \
+  interrupts.h syscalls.h file.h page.h terminal.h rtc.h
+page.o: page.c page.h types.h x86_desc.h lib.h
+pcb.o: pcb.c pcb.h types.h x86_desc.h lib.h
+rtc.o: rtc.c rtc.h lib.h types.h x86_desc.h i8259.h
+syscalls.o: syscalls.c syscalls.h file.h types.h page.h x86_desc.h lib.h \
+  terminal.h rtc.h i8259.h
+task_switch.o: task_switch.c task_switch.h x86_desc.h types.h lib.h idt.h \
+  interrupts.h syscalls.h file.h page.h terminal.h rtc.h i8259.h
+terminal.o: terminal.c terminal.h lib.h types.h
+tests.o: tests.c tests.h rtc.h lib.h types.h x86_desc.h i8259.h page.h \
+  file.h terminal.h

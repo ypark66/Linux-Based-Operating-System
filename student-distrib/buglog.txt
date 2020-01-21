@@ -1,0 +1,179 @@
+/***** MP3.1 *****/
+BUG:	Double-fault error
+	DESC: Upon running the kernel for part 1, the kernel would always throw a double-fault exception rather than cycling.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	March 9, 2019
+FIX:	So it TURNS OUT that FIRST we weren't including the initialization of the PIC, which caused strange interrupt behavior and a
+	double fault. THEN we included it and got a General Protection Exception. THEN we found out we were initializing the PIC incorrectly
+	by writing all 4 command words to the COMMAND port instead of the data PORT. Approx. 6 hours of work on this one.
+
+/***** MP3.2 *****/
+BUG:	Keyboard Buffer Undersized
+	DESC: The keyboard buffer did not read back 127 characters when requested.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	March 25, 2019
+FIX:	Buffer was being improperly cleared upon user pressing ENTER.
+
+BUG:	Executable file not being fully read.
+	DESC: Only the ELF magic constant at the beginning of the executable was being read out.
+DEV:	Yoon Park
+DATE:	March 25, 2019
+FIX:
+
+/***** MP3.3 *****/	
+BUG:	Execute system call runs but does nothing.
+	DESC: The execute system call is called but does absolutely nothing.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	April 6, 2019
+FIX:	When reading the arguments from the command parameter, there was no check for
+		a NULL character. Therefore, the check would just fail and execute would 
+		harmlessly return.
+		
+BUG:	Execute causes a PAGE FAULT.
+	DESC: Execute reaches the point where it jumps to user code but then PAGE FAULTs.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	April 6, 2019
+FIX:	The IRET context for execute was in the wrong order, so the code was trying
+		to use a non-address as an address.
+	
+BUG:	Execute generates GENERAL PROTECTION EXCEPTION.
+	DESC: Execute will run, but then generate a GENERAL PROTECTION EXCEPTION.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	April 6, 2019
+FIX:	Amongst other things, the IDT entry was not properly set, and the context 
+		switch happened out of order. Solid 3 hours on this one :(.
+		
+BUG:	System Call linkage fails.
+	DESC: The system call linkage is calling the wrong function.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	April 7, 2019
+FIX:	There needed to be an extra NULL entry at the beginning of the call table
+		of system executes to fix an off-by-one error.
+
+BUG:	Current PCB flag does not get updated.
+	DESC: stdio and stdout
+DEV:	Yeongyoon Park (ypark66)	
+DATE:	April 7, 2019
+FIX:	We did not update flag when setting fd_desc array index 0 and 1.
+
+BUG:	Wrong file name gets executed
+	DESC: Read file by name
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 11, 2019
+FIX:	Update condition on comparing the file name of command and directory entry.
+
+/***** MP3.4 *****/
+BUG:	File read error when executing cat
+	DESC: read_data
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 11, 2019
+FIX:	Changed the calculation of block offset and index and destination buffer when copying.
+
+BUG:	Only first character of frame0.txt and frame1.txt printed
+	DESC: read_data
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 13, 2019
+FIX:	Changed the calculation of block offset and index and destination buffer when copying.
+
+BUG:	ls does not print all of the file
+	DESC: dir_read
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 13, 2019
+FIX:	added a condition to control the length of the file name within 32
+
+BUG:	file open fails
+	DESC: dir_read
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 13, 2019
+FIX:	added a condition to control the length of the file name within 32
+
+BUG:    HALT always terminates "incorrectly"
+    DESC: Every program successfully runs and returns, but prints "Program terminated abnormally" every time.
+DEV:    Tyler Davis (tylerjd2)
+DATE:   April 14, 2019
+FIX:    Actually added the return value for HALT -- it was not implemented before.
+
+BUG:    Backspace could delete what terminal_write wrote to the terminal.
+    DESC: When the shell would open, you could backspace and delete the prompt and everything else until you type.
+DEV:    Tyler Davis (tylerjd2)
+DATE:   April 14, 2019
+FIX:    Added a flag in terminal write to keep track of what can and cannot be backspaced.
+
+BUG:	verylargetext file printing wrong character in ls
+	DESC: terminal_write
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 14, 2019
+FIX:	fixed wrong condition in terminal_write
+
+BUG: 	cat program fails for verylargetext
+	DESC: read_directory_by_name
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 14, 2019
+FIX:	added a condition to control the length of the file name within 32
+
+/***** MP3.5 *****/
+BUG:	PAGE FAULT on Terminal Switching
+	DESC: Page fault when trying to switch to a different terminal.
+DEV: 	Tyler Davis (tylerjd2)
+DATE:	April 24, 2019
+FIX:	I was using the base physical address to access the backing stores for the 
+		Terminal displays instead of using the separate virtual address I had set up.
+
+BUG: 	cat program fails for executable
+	DESC: terminal_write
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 25, 2019
+FIX:	changed the function to write given number of bytes instead of looking for null character
+
+BUG:	Program crashes when executing 4 processes 	
+	DESC: sys_halt
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 26, 2019
+FIX:	added parent pid to pcb struct and changed the value getting stored in tss.esp0. 
+
+BUG:	3 shells printing on same terminal
+	DESC: pit_handler
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 28, 2019
+FIX:	changed the video mapping for initial launch of shell 2 and 3
+
+BUG:	program crashes randomly
+	DESC: keyboard_handler
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 28, 2019
+FIX:	save prev term_in_serv and force set_term_in_service to the current terminal when servicing kb handler,
+		restore prev term_in_serv at the end of the kb handler
+
+
+BUG:	Program crashes when having no such command	
+	DESC: sys_execute
+DEV:	Michelle Kang (dykang2)	
+DATE: 	April 29, 2019
+FIX:	FREE process from proc_arr if the return value is -1. 
+
+BUG:	Program crashes when having no such command	
+	DESC: pit_handler
+DEV:	Michelle Kang (dykang2)	
+DATE: 	April 29, 2019
+FIX:	Mark the next terminal as "in service." after initializing shell for term 1 and 2 
+
+BUG:	fish crashes in terminal 1, and fish crashes on halt in terminal 2 and 3
+	DESC: sys-execute
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 29, 2019
+FIX:	delete buffer that caused kernel overflow and replaced it with direct memcpy call 
+
+BUG:	screen leaking
+	DESC: putc
+DEV:	Yeongyoon Park (ypark66)	
+DATE: 	April 29, 2019
+FIX:	set video mapping for servicing terminal before putc execute 
+
+BUG:	PAGE FAULT on running fish.
+	DESC: 	Fish always causes a page fault/boot loop when halting because it tries
+			to halt on the wrong terminal because its PCB is being corrupted by read_data.
+DEV:	Tyler Davis (tylerjd2)
+DATE:	April 29, 2019
+FIX:	The file buffer for the fish program was colliding with its PCB and exceeding its
+		page limit. We got rid of the file buffer and replaced it with a straight memcpy
+		to avoid the collision.
